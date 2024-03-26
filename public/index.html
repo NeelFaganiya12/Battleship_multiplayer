@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Sixtyfour&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Honk&display=swap" rel="stylesheet">
+    <h1 style="display:flex; justify-content: center; font-family: 'Honk', system-ui; font-size: 80px;">Battleship</h1>
+    <div class="information-container">
+      <svg width="100" height="50" xmlns="http://www.w3.org/2000/svg">
+        <rect x="60" y="10" width="80" height="50" style="fill:red;" />
+        <span style="font-size: 30px; font-style:italic; font-weight:bold">-->Hit</span>
+      </svg>
+      <svg width="100" height="50" xmlns="http://www.w3.org/2000/svg">
+        <rect x="60" y="10" width="80" height="50" style="fill:blue;" />
+        <span style="font-size: 30px; font-style:italic; font-weight:bold">-->Miss</span>
+      </svg>
+      
+    </div>
+    <title>Battleship Game</title>
+    <link rel="stylesheet" type="text/css" href="./styles.css">
+    <!-- <video width="320" height="240" autoplay style="opacity: 0.1;position: fixed;right: 0;bottom: 0;min-width: 100%; min-height: 100%;object-fit: fill; z-index: 0;" id="myVideo">
+      <source src="explosion_video.mp4" type="video/mp4">
+      Your browser does not support the audio element.
+    </video> -->
+  </head>
+  <body>
+    
+    <div class="player p1">
+      Player 1
+      <div class="connected">Connection <span></span></div>
+      <div class="ready">Ready <span></span></div>
+    </div>
+
+    <div class="player p2">
+      Player 2
+      <div class="connected">Connection <span></span></div>
+      <div class="ready">Ready <span></span></div>
+    </div>
+
+    <div id="svg-container" style="position:relative;z-index: 1;">
+      <div id="turn-container">
+        <p style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">Turn:</p>
+      </div>
+      <div id="restart-game"></div>
+      <div class="score-container">
+        <p style="text-align: center; font-size: 30px; font-family: 'Sixtyfour', sans-serif; display: inline-block;">Score:</p>
+        <span style="float: right; font-size: 30px; font-style:italic; font-weight:bold; display: inline-block;"><a href="./battleship-how-to-play.html" target="_blank">How to play?</a></span>
+        <p id="print-player-boats" style="font-family: 'Lobster', sans-serif;">No. of boats Player destroyed: </p>
+        <p id="print-computer-boats" style="font-family: 'Lobster', sans-serif;">No. of boats Comp destroyed: </p>
+        
+      </div>
+
+      
+    
+  
+      <div class="gameboard" style="display: inline-block;">
+        <p style="font-size: xxx-large  " id="playerName">Player</p>
+        <canvas id="player" width="500" height="500" style="margin:50px; "></canvas>
+        
+      </div>
+  
+      <div class="gameboard" style="display: inline-block;">
+        <p style="font-size: xxx-large " id="oppName">Computer</p>
+        <canvas id="computer" width="500" height="500" style="margin:50px;"></canvas>
+      </div>
+      <br>
+      
+      <br>
+      <h3 id="info"></h3>
+  
+      <div style="justify-content: center;">
+        <button id="Start-game">Start Game</button> 
+      </div>
+  
+      <audio id="myAudio">
+        <source src="explosion_sound.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      
+      <div class="boats-container">
+        <div id="one" class="ship boat-one one" style="cursor:pointer" draggable="true"></div>
+        <div id="two" class="ship boat-two two" style="cursor:pointer" draggable="true"></div>
+        <div id="three" class="ship boat-three three" style="cursor:pointer" draggable="true"></div>
+        <div id="four" class="ship boat-four four" style="cursor:pointer" draggable="true"></div>
+        <div id="five" class="ship boat-five five" style="cursor:pointer" draggable="true"></div>
+      </div>
+  
+      <button id="button-flip">Flip boats</button>
+   
+    </div>
+    </body>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+<script src="./script.js"></script>
+</body>
+</html>

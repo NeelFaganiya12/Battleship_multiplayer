@@ -1,0 +1,155 @@
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #e6bbbb;
+}
+
+.gameboard{
+    justify-content: space-between;
+}
+
+.boats-container{
+  width:850px;
+  height:230px;
+  align-items: center;
+  background-color: rgb(215, 200, 182);
+  display:flex;
+}
+
+#Start-game {
+    background-color: #04AA6D;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    text-align: center;
+    }
+
+#restart-button {
+    background-color: #04AA6D;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: flex;
+    font-size: 16px;
+    margin-left: 45%;
+    cursor: pointer;
+    text-align: center;
+  }
+
+.how-to-play-container {
+    margin: 10px
+}
+
+.li {
+    font-weight: bold;
+}
+
+.score-container{
+    width:30%;
+    height:20%;
+    float:right;
+    align-items: center;
+    background-color: rgb(215, 200, 182);
+  }
+
+.information-container{
+    width:100%;
+    height:10%;
+    float:right;
+    align-items: center;
+    background-color: antiquewhite;
+  }
+
+.one {
+    background-color: #FED8B1;
+}
+
+.boat-one {
+    width:40px;
+    height:20px;
+    margin:10px;
+}
+
+.two {
+    background-color: #007C80;
+}
+
+.boat-two {
+    width:80px;
+    height:20px;
+    margin:10px;
+}
+
+.three {
+    background-color: rgb(43, 226, 159);
+}
+
+.boat-three {
+    width:140px;
+    height:20px;
+    margin:10px;
+}
+
+.four {
+    background-color: rgb(226, 177, 43);
+}
+
+.boat-four {
+    width:180px;
+    height:20px;
+    margin:10px;
+}
+
+.five {
+    background-color: #808080;
+}
+
+.boat-five {
+    width:220px;
+    height:20px;
+    margin:10px;
+}
+
+.hover{
+    background-color: green;
+}
+
+.wrong-hover{
+    background-color: red;
+}
+
+#print-player-boats {
+    font-size: x-large;
+    width: auto;
+    height: 40px;
+    display: flex;
+}
+
+#print-computer-boats {
+    font-size: x-large;
+    width: auto;
+    height: 40px;
+    display: flex;
+}
+
+.connected, .ready {
+    font-weight: normal;
+}
+.connected span, .ready span {
+    display: inline-block;
+    width:1rem;
+    height: 1rem;
+    background: red;
+}
+
+span.green {
+    background: green;
+}
