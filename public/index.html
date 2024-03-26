@@ -29,21 +29,21 @@
   </head>
   <body>
     
-    <div class="player p1">
+    <div class="player p1 turn-container" style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">
       Player 1
       <div class="connected">Connection <span></span></div>
       <div class="ready">Ready <span></span></div>
     </div>
 
-    <div class="player p2">
+    <div class="player p2 turn-container" style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">
       Player 2
       <div class="connected">Connection <span></span></div>
       <div class="ready">Ready <span></span></div>
     </div>
 
     <div id="svg-container" style="position:relative;z-index: 1;">
-      <div id="turn-container">
-        <p style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">Turn:</p>
+      <div>
+        <p id="turn-container" style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">Turn:</p>
       </div>
       <div id="restart-game"></div>
       <div class="score-container">
@@ -58,13 +58,13 @@
     
   
       <div class="gameboard" style="display: inline-block;">
-        <p style="font-size: xxx-large  " id="playerName">Player</p>
+        <p style="font-size: xxx-large  " id="playerName">Your grid</p>
         <canvas id="player" width="500" height="500" style="margin:50px; "></canvas>
         
       </div>
   
       <div class="gameboard" style="display: inline-block;">
-        <p style="font-size: xxx-large " id="oppName">Computer</p>
+        <p style="font-size: xxx-large " id="oppName">Enemy's grid</p>
         <canvas id="computer" width="500" height="500" style="margin:50px;"></canvas>
       </div>
       <br>

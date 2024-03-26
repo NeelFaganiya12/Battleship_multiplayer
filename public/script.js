@@ -154,7 +154,7 @@ function battleShipGame() {
       currentPlayer == "user" &&
       isReady &&
       isEnemyReady &&
-      Turn.innerHTML === "Your turn"
+      Turn.innerHTML === "Turn: Your turn"
     ) {
       const rect = canvas1.getBoundingClientRect();
       const x = event.clientX - rect.left;
@@ -167,14 +167,14 @@ function battleShipGame() {
       // handleCanvasClick1(event);
       shotFired = { gridX: gridX, gridY: gridY };
       currentPlayer = "enemy";
-      Turn.innerHTML = "Enemy's turn";
+      Turn.innerHTML = "Turn: Enemy's turn";
       socket.emit("fire", { shotFired: shotFired, shipss: shipsPlayer });
     }
     if (
       currentPlayer == "enemy" &&
       isReady &&
       isEnemyReady &&
-      Turn.innerHTML === "Your turn"
+      Turn.innerHTML === "Turn: Your turn"
     ) {
       const rect = canvas1.getBoundingClientRect();
       const x = event.clientX - rect.left;
@@ -187,7 +187,7 @@ function battleShipGame() {
       // handleCanvasClick1(event);
       shotFired = { gridX: gridX, gridY: gridY };
       currentPlayer = "user";
-      Turn.innerHTML = "Enemy's Turn";
+      Turn.innerHTML = "Turn: Enemy's Turn";
       socket.emit("fire", { shotFired: shotFired, shipss: shipsPlayer });
     }
   });
@@ -195,19 +195,24 @@ function battleShipGame() {
   //Runs when the enemy shoots
   socket.on("fire", (event) => {
     f = 1;
-    Turn.innerHTML = "Your turn";
+    Turn.innerHTML = "Turn: Your turn";
     console.log(event.shipss);
     const gridX = event.shotFired.gridX;
     const gridY = event.shotFired.gridY;
 
-    if (checkArray(shipsPlayer, [gridX, gridY]) == -1) {
-      ctx.fillStyle = "blue";
-      ctx.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
-      socket.emit("reply-fire", { msg: "miss", gridX: gridX, gridY: gridY });
-    } else if (checkArray(shipsPlayer, [gridX, gridY]) == 0) {
-      ctx.fillStyle = "red";
-      ctx.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
-      socket.emit("reply-fire", { msg: "hit", gridX: gridX, gridY: gridY });
+    if (findsIndex(hits, [gridX, gridY]) == -1) {
+      hits.push([gridX, gridY]);
+      if (checkArray(shipsPlayer, [gridX, gridY]) == -1) {
+        ctx.fillStyle = "blue";
+        ctx.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
+        socket.emit("reply-fire", { msg: "miss", gridX: gridX, gridY: gridY });
+      } else if (checkArray(shipsPlayer, [gridX, gridY]) == 0) {
+        ctx.fillStyle = "red";
+        ctx.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
+        socket.emit("reply-fire", { msg: "hit", gridX: gridX, gridY: gridY });
+      }
+    } else {
+      socket.emit("reply-fire", { msg: "already-hit" });
     }
 
     // canvas1.removeEventListener("click", () => console.log("removed"));
@@ -228,6 +233,9 @@ function battleShipGame() {
     } else if (m.msg == "miss") {
       ctx1.fillStyle = "red";
       ctx1.fillRect(m.gridX * cellSize, m.gridY * cellSize, cellSize, cellSize);
+    } else {
+      alert("Spot already bombed, please bomb another spot");
+      // Turn.innerHTML = "Your turn";
     }
   });
 
@@ -1083,19 +1091,19 @@ function battleShipGame() {
 
     if (isEnemyReady) {
       if (currentPlayer === "user") {
-        Turn.innerHTML = "Your turn";
+        Turn.innerHTML = "Turn: Your turn";
       }
       if (currentPlayer === "enemy") {
-        Turn.innerHTML = "Enemy's turn";
+        Turn.innerHTML = "Turn: Enemy's turn";
       }
     }
 
     if (isReady) {
       if (currentPlayer === "user") {
-        Turn.innerHTML = "Enemy's Turn";
+        Turn.innerHTML = "Turn: Enemy's Turn";
       }
       if (currentPlayer === "enemy") {
-        Turn.innerHTML = "Your turn";
+        Turn.innerHTML = "Turn: Your turn";
       }
     }
   }
