@@ -132,11 +132,6 @@ function battleShipGame() {
     }
   });
 
-  startGame.addEventListener("click", () => {
-    if (allShipsPlaced) startPlaying(socket);
-    else infoDisplay.innerHTML = "Please place ships first";
-  });
-
   function checkArray(shipArray, findValue) {
     //Checks if findValue exists in shipArray Array
     for (let i = 0; i < shipArray.length; i++) {
@@ -146,6 +141,57 @@ function battleShipGame() {
     }
     return -1;
   }
+
+  function findsIndex(arr1, elem) {
+    //finds the index of the elem in arr1
+    for (let i = 0; i < arr1.length; i++) {
+      if (JSON.stringify(arr1[i]) == JSON.stringify(elem)) return i;
+    }
+    return -1;
+  }
+
+  function checkShipHitOccurence(arr1, ind) {
+    //Checks which ship is hit
+    let cnt = 0;
+    for (let i = 0; i < arr1.length; i++) {
+      if (arr1[i] == ind) cnt++;
+    }
+    return cnt;
+  }
+
+  let droppedSequence2 = []; //This array stores the equivalent of droppedSequence, if the droppedSequence is [2,4,1,3,5] this array will contain [1,1,3,3,3,3,0,2,2,2,4,4,4,4] which will help me in finding the index of the ship placed
+
+  function findIndexDroppedSeq() {
+    //This function checks the sequence in which the ships were dropped, and accordingly pushes the ship number in the array droppedSequence2 so that when the user clicks we can find the index of that grid in shipsPlayer and then on getting the value of that index from droppedSequence2, we can find the ship that has been hit
+    for (let i = 0; i < droppedSequence.length; i++) {
+      if (droppedSequence[i] == 1) {
+        droppedSequence2.push(0);
+      } else if (droppedSequence[i] == 2) {
+        for (let j = 0; j < 2; j++) {
+          droppedSequence2.push(1);
+        }
+      } else if (droppedSequence[i] == 3) {
+        for (let j = 0; j < 3; j++) {
+          droppedSequence2.push(2);
+        }
+      } else if (droppedSequence[i] == 4) {
+        for (let j = 0; j < 4; j++) {
+          droppedSequence2.push(3);
+        }
+      } else {
+        for (let j = 0; j < 5; j++) {
+          droppedSequence2.push(4);
+        }
+      }
+    }
+  }
+
+  startGame.addEventListener("click", () => {
+    if (allShipsPlaced) startPlaying(socket);
+    else infoDisplay.innerHTML = "Please place ships first";
+    findIndexDroppedSeq();
+    console.log(shipsPlayer);
+  });
 
   let ff = 0;
 
@@ -197,6 +243,7 @@ function battleShipGame() {
     f = 1;
     Turn.innerHTML = "Turn: Your turn";
     console.log(event.shipss);
+    let val;
     const gridX = event.shotFired.gridX;
     const gridY = event.shotFired.gridY;
 
@@ -210,6 +257,36 @@ function battleShipGame() {
         ctx.fillStyle = "red";
         ctx.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
         socket.emit("reply-fire", { msg: "hit", gridX: gridX, gridY: gridY });
+
+        const indShipPlayer = findsIndex(shipsPlayer, [gridX, gridY]);
+        const val = droppedSequence2[indShipPlayer];
+        shipsHitByComputer.push(val);
+        const countShipHit = checkShipHitOccurence(shipsHitByComputer, val);
+        if (countShipHit == val + 1) {
+          cntComputer++;
+          console.log("I'm in");
+          var img = new Image();
+          var div1 = document.getElementById("print-computer-boats");
+
+          img.onload = function () {
+            div1.appendChild(img);
+
+            var soundEffect = document.getElementById("myAudio");
+            soundEffect.play();
+
+            var videoEffect = document.getElementById("myVideo");
+            videoEffect.pause();
+            videoEffect.play();
+          };
+
+          img.src = "./battleship.svg";
+          if (cntComputer == 5) {
+            alert("You Lost!!!!");
+            socket.emit("full-boat-destroyed", { msg: "finished" });
+          } else {
+            socket.emit("full-boat-destroyed", { msg: "destroyed" });
+          }
+        }
       }
     } else {
       socket.emit("reply-fire", { msg: "already-hit" });
@@ -219,17 +296,55 @@ function battleShipGame() {
     // startPlaying(socket);
   });
 
+  socket.on("full-boat-destroyed", (msg) => {
+    if (msg.msg === "destroyed") {
+      var img = new Image();
+      var div1 = document.getElementById("print-player-boats");
+
+      img.onload = function () {
+        div1.appendChild(img);
+
+        var soundEffect = document.getElementById("myAudio");
+        soundEffect.play();
+
+        var videoEffect = document.getElementById("myVideo");
+        videoEffect.pause();
+        videoEffect.play();
+      };
+
+      img.src = "./battleship.svg";
+    } else if (msg.msg === "finished") {
+      var img = new Image();
+      var div1 = document.getElementById("print-player-boats");
+
+      img.onload = function () {
+        div1.appendChild(img);
+
+        var soundEffect = document.getElementById("myAudio");
+        soundEffect.play();
+
+        var videoEffect = document.getElementById("myVideo");
+        videoEffect.pause();
+        videoEffect.play();
+      };
+
+      img.src = "./battleship.svg";
+      alert("You Won!!!");
+    }
+  });
+
   socket.on("reply-fire", (m) => {
     if (m.msg == "hit") {
-      shipsHitByPlayer.push([m.gridX, m.gridY]);
+      // shipsHitByPlayer.push([m.gridX, m.gridY]);
       ctx1.fillStyle = "black";
       ctx1.fillRect(m.gridX * cellSize, m.gridY * cellSize, cellSize, cellSize);
-      if (shipsHitByPlayer.length == 15) {
-        if (confirm("You won!")) {
-          location.reload();
-        }
-        socket.emit("game-over");
-      }
+
+      // if (shipsHitByPlayer.length == 15) {
+      //   if (confirm("You won!")) {
+      //     location.reload();
+      //   }
+      //   socket.emit("game-over");
+      // }
     } else if (m.msg == "miss") {
       ctx1.fillStyle = "red";
       ctx1.fillRect(m.gridX * cellSize, m.gridY * cellSize, cellSize, cellSize);
@@ -664,50 +779,6 @@ function battleShipGame() {
           "The ship cannot be placed here, please select another Space"
         );
         return -1;
-      }
-    }
-  }
-
-  function findsIndex(arr1, elem) {
-    //finds the index of the elem in arr1
-    for (let i = 0; i < arr1.length; i++) {
-      if (JSON.stringify(arr1[i]) == JSON.stringify(elem)) return i;
-    }
-    return -1;
-  }
-
-  function checkShipHitOccurence(arr1, ind) {
-    //Checks which ship is hit
-    let cnt = 0;
-    for (let i = 0; i < arr1.length; i++) {
-      if (arr1[i] == ind) cnt++;
-    }
-    return cnt;
-  }
-
-  let droppedSequence2 = []; //This array stores the equivalent of droppedSequence, if the droppedSequence is [2,4,1,3,5] this array will contain [1,1,3,3,3,3,0,2,2,2,4,4,4,4] which will help me in finding the index of the ship placed
-
-  function findIndexDroppedSeq() {
-    //This function checks the sequence in which the ships were dropped, and accordingly pushes the ship number in the array droppedSequence2 so that when the user clicks we can find the index of that grid in shipsPlayer and then on getting the value of that index from droppedSequence2, we can find the ship that has been hit
-    for (let i = 0; i < droppedSequence.length; i++) {
-      if (droppedSequence[i] == 1) {
-        droppedSequence2.push(0);
-      } else if (droppedSequence[i] == 2) {
-        for (let j = 0; j < 2; j++) {
-          droppedSequence2.push(1);
-        }
-      } else if (droppedSequence[i] == 3) {
-        for (let j = 0; j < 3; j++) {
-          droppedSequence2.push(2);
-        }
-      } else if (droppedSequence[i] == 4) {
-        for (let j = 0; j < 4; j++) {
-          droppedSequence2.push(3);
-        }
-      } else {
-        for (let j = 0; j < 5; j++) {
-          droppedSequence2.push(4);
-        }
       }
     }
   }
