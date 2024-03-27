@@ -18,51 +18,6 @@ const boat_five = new Boat("boat_five", 5);
 const boat = [boat_one, boat_two, boat_three, boat_four, boat_five];
 
 function battleShipGame() {
-  // const socket = new WebSocket("ws://localhost:3000");
-  // socket.onmessage = handleServerMessage;
-  // const socket = io();
-  let name;
-
-  // document.getElementById("find").addEventListener("click", function () {
-  //   name = document.getElementById("name").value;
-  //   if (name == "" || name == null) {
-  //     alert("Please enter a valid name");
-  //   } else {
-  //     socket.emit("find", { name: name });
-
-  //     document.getElementById("loading").style.display = "block";
-  //     document.getElementById("find").disabled = true;
-  //     document.getElementById("playerName").innerText = name;
-  //   }
-  // });
-
-  // socket.on("find", (e) => {
-  //   let allPlayersArray = e.allPlayers;
-  //   console.log(allPlayersArray);
-
-  //   document.getElementById("svg-container").style.display = "block";
-  //   document.getElementById("loading").style.display = "none";
-  //   document.getElementById("find").style.display = "none";
-
-  //   let oppName;
-  //   let value;
-
-  //   const foundObj = allPlayersArray.find(
-  //     (obj) => obj.p1.p1name == `${name}` || obj.p2.p2name == `${name}`
-  //   );
-
-  //   foundObj.p1.p1name == `${name}`
-  //     ? (oppName = foundObj.p2.p2name)
-  //     : (oppName = foundObj.p1.p1name);
-  //   foundObj.p1.p1name == `${name}`
-  //     ? (value = foundObj.p2.p2value)
-  //     : (value = foundObj.p1.p1value);
-
-  //   console.log(value);
-  //   document.getElementById("oppName").innerText = oppName;
-  //   document.getElementById("value").innerText = value;
-  // });
-
   cnt = 0;
   var videoEffect = document.getElementById("myVideo");
   // videoEffect.pause();
@@ -94,21 +49,13 @@ function battleShipGame() {
   const gridSize = 10;
   const cellSize = canvas.width / gridSize;
   const cellSize1 = canvas1.width / gridSize;
-  let ships = []; // Ship placement position for Computer (Randomly generated)
   let shipsPlayer = []; // Ship placement position for Player (Player chooses)
   let hits = []; //Handles the hits
   let playerShipIDUsed = []; //Keeps track of which ships the player has placed in the grid
-  let shipsHitByPlayer = []; //Contains name of the ships that have been hit by the player
   let shipsHitByComputer = []; //Contains name of the ships that have been hit by the computer
   const infoDisplay = document.querySelector("#info");
-  let hitsByComputer = [];
   let droppedSequence = [];
-  let cntShip = 0;
   let cntComputer = 0;
-  let player_miss = 0;
-  let player_hit = 0;
-  let computer_miss = 0;
-  let computer_hit = 0;
   let currentPlayer = "user";
   const Turn = document.querySelector("#turn-container");
 
@@ -207,10 +154,6 @@ function battleShipGame() {
       const y = event.clientY - rect.top;
       const gridX = Math.floor(x / cellSize);
       const gridY = Math.floor(y / cellSize);
-      // ctx1.fillStyle = "red";
-      // ctx1.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
-      shotFired = { gridX: gridX, gridY: gridY };
-      // handleCanvasClick1(event);
       shotFired = { gridX: gridX, gridY: gridY };
       currentPlayer = "enemy";
       Turn.innerHTML = "Turn: Enemy's turn";
@@ -227,10 +170,6 @@ function battleShipGame() {
       const y = event.clientY - rect.top;
       const gridX = Math.floor(x / cellSize);
       const gridY = Math.floor(y / cellSize);
-      // ctx1.fillStyle = "red";
-      // ctx1.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
-      shotFired = { gridX: gridX, gridY: gridY };
-      // handleCanvasClick1(event);
       shotFired = { gridX: gridX, gridY: gridY };
       currentPlayer = "user";
       Turn.innerHTML = "Turn: Enemy's Turn";
@@ -291,9 +230,6 @@ function battleShipGame() {
     } else {
       socket.emit("reply-fire", { msg: "already-hit" });
     }
-
-    // canvas1.removeEventListener("click", () => console.log("removed"));
-    // startPlaying(socket);
   });
 
   socket.on("full-boat-destroyed", (msg) => {
@@ -350,7 +286,6 @@ function battleShipGame() {
       ctx1.fillRect(m.gridX * cellSize, m.gridY * cellSize, cellSize, cellSize);
     } else {
       alert("Spot already bombed, please bomb another spot");
-      // Turn.innerHTML = "Your turn";
     }
   });
 
@@ -410,28 +345,6 @@ function battleShipGame() {
     }
   }
 
-  function randomComputerBoats() {
-    //Handles random placements of ships for computer
-    boat_one_computer();
-    boat_two_computer();
-    boat_three_computer();
-    boat_four_computer();
-    boat_five_computer();
-  }
-
-  function boat_one_computer() {
-    //Generates a random position, checks if the position is valid for one boat, checks if the posiition is not already filled in
-    let randomTF = Math.random() < 0.5;
-    let x = Math.floor(Math.random() * 10);
-    let y = Math.floor(Math.random() * 10);
-
-    if (checkArray(ships, [x, y]) == -1) {
-      ships.push([x, y]);
-    } else {
-      boat_one_computer();
-    }
-  }
-
   function boat_one_player(x, y) {
     //checks if the given position is valid for one boat, checks if the position is not already filled in
     if (checkArray(shipsPlayer, [x, y]) == -1) {
@@ -445,40 +358,6 @@ function battleShipGame() {
         "The ship cannot be placed here, please select another Space"
       );
       return -1;
-    }
-  }
-
-  function boat_two_computer() {
-    //Generates a random position, checks if the start position can fill two positions, checks if the position is not already filled in
-    let randomTF = Math.random() < 0.5;
-    let ran1 = Math.floor(Math.random() * 10);
-    let ran2 = Math.floor(Math.random() * 10);
-
-    let x = Number(ran1);
-    let y = Number(ran2);
-
-    if (randomTF) {
-      if (
-        checkArray(ships, [x, y]) == -1 &&
-        checkArray(ships, [x, y + 1]) == -1 &&
-        y + 1 < 10
-      ) {
-        ships.push([x, y]);
-        ships.push([x, y + 1]);
-      } else {
-        boat_two_computer();
-      }
-    } else {
-      if (
-        checkArray(ships, [x, y]) == -1 &&
-        checkArray(ships, [x + 1, y]) == -1 &&
-        x + 1 < 10
-      ) {
-        ships.push([x, y]);
-        ships.push([x + 1, y]);
-      } else {
-        boat_two_computer();
-      }
     }
   }
 
@@ -521,41 +400,6 @@ function battleShipGame() {
           "The ship cannot be placed here, please select another Space"
         );
         return -1;
-      }
-    }
-  }
-
-  function boat_three_computer() {
-    //Generates a random position, checks if the start position can fill three positions, checks if the position is not already filled in
-    let randomTF = Math.random() < 0.5;
-    let x = Math.floor(Math.random() * 10);
-    let y = Math.floor(Math.random() * 10);
-
-    if (randomTF) {
-      if (
-        checkArray(ships, [x, y]) == -1 &&
-        checkArray(ships, [x, y + 1]) == -1 &&
-        checkArray(ships, [x, y + 2]) == -1 &&
-        y + 2 < 10
-      ) {
-        for (let i = 0; i < 3; i++) {
-          ships.push([x, y + i]);
-        }
-      } else {
-        boat_three_computer();
-      }
-    } else {
-      if (
-        checkArray(ships, [x, y]) == -1 &&
-        checkArray(ships, [x + 1, y]) == -1 &&
-        checkArray(ships, [x + 2, y]) == -1 &&
-        x + 2 < 10
-      ) {
-        for (let i = 0; i < 3; i++) {
-          ships.push([x + i, y]);
-        }
-      } else {
-        boat_three_computer();
       }
     }
   }
@@ -607,43 +451,6 @@ function battleShipGame() {
     }
   }
 
-  function boat_four_computer() {
-    //Generates a random position, checks if the start position can fill four positions, checks if the position is not already filled in
-    let randomTF = Math.random() < 0.5;
-    let x = Math.floor(Math.random() * 10);
-    let y = Math.floor(Math.random() * 10);
-
-    if (randomTF) {
-      if (
-        checkArray(ships, [x, y]) == -1 &&
-        checkArray(ships, [x, y + 1]) == -1 &&
-        checkArray(ships, [x, y + 2]) == -1 &&
-        checkArray(ships, [x, y + 3]) == -1 &&
-        y + 3 < 10
-      ) {
-        for (let i = 0; i < 4; i++) {
-          ships.push([x, y + i]);
-        }
-      } else {
-        boat_four_computer();
-      }
-    } else {
-      if (
-        checkArray(ships, [x, y]) == -1 &&
-        checkArray(ships, [x + 1, y]) == -1 &&
-        checkArray(ships, [x + 2, y]) == -1 &&
-        checkArray(ships, [x + 3, y]) == -1 &&
-        x + 3 < 10
-      ) {
-        for (let i = 0; i < 4; i++) {
-          ships.push([x + i, y]);
-        }
-      } else {
-        boat_four_computer();
-      }
-    }
-  }
-
   function boat_four_player(x, y, randomTF) {
     //checks if the start position has 4 consecutive available blocks, checks if the ships is to be places vertically or horizontally
     if (randomTF) {
@@ -689,45 +496,6 @@ function battleShipGame() {
           "The ship cannot be placed here, please select another Space"
         );
         return -1;
-      }
-    }
-  }
-
-  function boat_five_computer() {
-    //Generates a random position, checks if the start position can fill five positions, checks if the position is not already filled in
-    let randomTF = Math.random() < 0.5;
-    let x = Math.floor(Math.random() * 10);
-    let y = Math.floor(Math.random() * 10);
-
-    if (randomTF) {
-      if (
-        checkArray(ships, [x, y]) == -1 &&
-        checkArray(ships, [x, y + 1]) == -1 &&
-        checkArray(ships, [x, y + 2]) == -1 &&
-        checkArray(ships, [x, y + 3]) == -1 &&
-        checkArray(ships, [x, y + 4]) == -1 &&
-        y + 4 < 10
-      ) {
-        for (let i = 0; i < 5; i++) {
-          ships.push([x, y + i]);
-        }
-      } else {
-        boat_five_computer();
-      }
-    } else {
-      if (
-        checkArray(ships, [x, y]) == -1 &&
-        checkArray(ships, [x + 1, y]) == -1 &&
-        checkArray(ships, [x + 2, y]) == -1 &&
-        checkArray(ships, [x + 3, y]) == -1 &&
-        checkArray(ships, [x + 4, y]) == -1 &&
-        x + 4 < 10
-      ) {
-        for (let i = 0; i < 5; i++) {
-          ships.push([x + i, y]);
-        }
-      } else {
-        boat_five_computer();
       }
     }
   }
@@ -867,188 +635,6 @@ function battleShipGame() {
     battleShipGame();
   }
 
-  function handleCanvasClick() {
-    //Handles click on the computer side grid
-    let gridX = Math.floor(Math.random() * 10);
-    let gridY = Math.floor(Math.random() * 10);
-
-    if (checkArray(hitsByComputer, [gridX, gridY]) == -1) {
-      if (!hitsByComputer.some((hit) => hit[0] === gridX && hit[1] === gridY)) {
-        if (
-          shipsPlayer.some((ship) => ship[0] === gridX && ship[1] === gridY)
-        ) {
-          ctx.fillStyle = "red";
-          ctx.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
-          hitsByComputer.push([gridX, gridY]);
-          const indShipPlayer = findsIndex(shipsPlayer, [gridX, gridY]);
-          const val = droppedSequence2[indShipPlayer];
-          shipsHitByComputer.push(val);
-          const countShipHit = checkShipHitOccurence(shipsHitByComputer, val);
-          if (countShipHit == val + 1) {
-            cntComputer++;
-            var img = new Image();
-            var div1 = document.getElementById("print-computer-boats");
-
-            img.onload = function () {
-              div1.appendChild(img);
-
-              var soundEffect = document.getElementById("myAudio");
-              soundEffect.play();
-
-              var videoEffect = document.getElementById("myVideo");
-              videoEffect.pause();
-              videoEffect.play();
-            };
-
-            img.src = "./battleship.svg";
-            if (cntComputer == 5) {
-              //If all 5 ships have been destroyed, the game ends
-              canvas.removeEventListener("click", handleCanvasClick);
-              canvas1.removeEventListener("click", handleCanvasClick1);
-              document.getElementById("turn-container").innerHTML =
-                "<p style=\"text-align: center; font-size: 60px; color: yellow; font-family: 'Black Ops One', system-ui; margin-bottom: 50px;\">Winner: COMPUTER WINS</p>";
-              document.getElementById("restart-game").innerHTML =
-                '<button id="restart-button">Restart Game</button>';
-              document
-                .getElementById("restart-button")
-                .addEventListener("click", restartGame);
-              return; //helps in exitin the function after the computer wins.
-            }
-          }
-          computer_hit++;
-          document.getElementById("turn-container").innerHTML =
-            "<p style=\"text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;\">Player Hit: " +
-            player_hit +
-            " || Player Miss: " +
-            player_miss +
-            " || Turn: Computer's turn || Computer Hit: " +
-            computer_hit +
-            " || Computer Miss: " +
-            computer_miss +
-            "</p>";
-          setTimeout(handleCanvasClick, 1250);
-        } else {
-          ctx.fillStyle = "blue";
-          ctx.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
-          hitsByComputer.push([gridX, gridY]);
-          canvas1.addEventListener("click", handleCanvasClick1);
-          computer_miss++;
-          document.getElementById("turn-container").innerHTML =
-            "<p style=\"text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;\">Player Hit: " +
-            player_hit +
-            " || Player Miss: " +
-            player_miss +
-            " || Turn: Player's turn || Computer Hit: " +
-            computer_hit +
-            " || Computer Miss: " +
-            computer_miss +
-            "</p>";
-        }
-      }
-    } else handleCanvasClick();
-  }
-
-  function handleCanvasClick1(event) {
-    //Handles click on the player side grid
-    const rect = canvas1.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    const gridX = Math.floor(x / cellSize);
-    const gridY = Math.floor(y / cellSize);
-    let val;
-    if (findsIndex(hits, [gridX, gridY]) == -1) {
-      if (!hits.some((hit) => hit[0] === gridX && hit[1] === gridY)) {
-        if (ships.some((ship) => ship[0] === gridX && ship[1] === gridY)) {
-          ctx1.fillStyle = "red";
-          ctx1.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
-          hits.push([gridX, gridY]);
-          const ind = findsIndex(ships, [gridX, gridY]);
-          if (ind == 0) {
-            val = 0;
-            shipsHitByPlayer.push(0);
-          } else if (ind == 1 || ind == 2) {
-            val = 1;
-            shipsHitByPlayer.push(1);
-          } else if (ind >= 3 && ind <= 5) {
-            val = 2;
-            shipsHitByPlayer.push(2);
-          } else if (ind >= 6 && ind <= 9) {
-            val = 3;
-            shipsHitByPlayer.push(3);
-          } else {
-            val = 4;
-            shipsHitByPlayer.push(4);
-          }
-          const countShipHit = checkShipHitOccurence(shipsHitByPlayer, val);
-          if (countShipHit == val + 1) {
-            cntShip++;
-            var img = new Image();
-            var div1 = document.getElementById("print-player-boats");
-
-            img.onload = function () {
-              div1.appendChild(img);
-
-              var soundEffect = document.getElementById("myAudio");
-              soundEffect.play();
-
-              var videoEffect = document.getElementById("myVideo");
-              videoEffect.pause();
-              videoEffect.play();
-            };
-
-            img.src = "./battleship.svg";
-            if (cntShip == 5) {
-              //If all 5 ships have been destroyed, the game ends
-              canvas.removeEventListener("click", handleCanvasClick);
-              canvas1.removeEventListener("click", handleCanvasClick1);
-              document.getElementById("turn-container").innerHTML =
-                "<p style=\"text-align: center; font-size: 60px; color: yellow; font-family: 'Black Ops One', system-ui; margin-bottom: 50px;\">Winner: PLAYER WINS</p>";
-              document.getElementById("restart-game").innerHTML =
-                '<button id="restart-button">Restart Game</button>';
-              document
-                .getElementById("restart-button")
-                .addEventListener("click", restartGame);
-              return;
-            }
-          }
-          player_hit++;
-          document.getElementById("turn-container").innerHTML =
-            "<p style=\"text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;\">Player Hit: " +
-            player_hit +
-            " || Player Miss: " +
-            player_miss +
-            " || Turn: Player's turn || Computer Hit: " +
-            computer_hit +
-            " || Computer Miss: " +
-            computer_miss +
-            "</p>";
-          handleCanvasClick1();
-        } else {
-          ctx1.fillStyle = "blue";
-          ctx1.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
-          hits.push([gridX, gridY]);
-          canvas1.removeEventListener("click", handleCanvasClick1);
-          // setTimeout(handleCanvasClick, 1250);
-          player_miss++;
-          document.getElementById("turn-container").innerHTML =
-            "<p style=\"text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;\">Player Hit: " +
-            player_hit +
-            " || Player Miss: " +
-            player_miss +
-            " || Turn: Computer's turn || Computer Hit: " +
-            computer_hit +
-            " || Computer Miss: " +
-            computer_miss +
-            "</p>";
-        }
-      }
-    } else {
-      window.alert(
-        "Please bomb a different spot, you have already placed a bomb here."
-      );
-    }
-  }
-
   let shipDragged;
   const boatsPlayed = Array.from(
     document.getElementsByClassName("boats-container")
@@ -1184,36 +770,11 @@ function battleShipGame() {
     document.querySelector(`${player} .ready span`).classList.toggle("green");
   }
 
-  function playStarts() {
-    //This function is called when "Start Game" button is clicked
-    if (playerShipIDUsed.length == 5) {
-      startGame.remove();
-      canvas1.addEventListener("click", handleCanvasClick1);
-      document.getElementById("turn-container").innerHTML =
-        "<p style=\"text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui; margin-bottom: 50px;\">Player Hit: 0 || Player Miss: 0 || Turn: Player's turn || Computer Hit: 0 || Computer Miss: 0</p>";
-      findIndexDroppedSeq();
-      randomComputerBoats();
-    } else {
-      window.alert("Please first place all the ships in the grid");
-    }
-  }
-
   function initGame() {
     //This function draws the Player and Computer board and calls the playStarts function to start the game
     drawBoard();
     drawBoard1();
-    // startGame.addEventListener("click", playStarts);
   }
-
-  // TODO
-  // function handleServerMessage(event) {
-  //   console.log("Message from server:", event.data);
-  // }
-
-  // TODO
-  // function sendMessageToServer(message) {
-  //   socket.send(message);
-  // }
 
   initGame();
   document.getElementById("button-flip").addEventListener("click", rotateShips);
