@@ -22,29 +22,27 @@
     </div>
     <title>Battleship Game</title>
     <link rel="stylesheet" type="text/css" href="./styles.css">
-    <!-- <video width="320" height="240" autoplay style="opacity: 0.1;position: fixed;right: 0;bottom: 0;min-width: 100%; min-height: 100%;object-fit: fill; z-index: 0;" id="myVideo">
-      <source src="explosion_video.mp4" type="video/mp4">
-      Your browser does not support the audio element.
-    </video> -->
   </head>
   <body>
     
-    <div class="player p1 turn-container" style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">
-      Player 1
-      <div class="connected">Connection <span></span></div>
-      <div class="ready">Ready <span></span></div>
-    </div>
-
-    <div class="player p2 turn-container" style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">
-      Player 2
-      <div class="connected">Connection <span></span></div>
-      <div class="ready">Ready <span></span></div>
+    <div id="connection-turn-container"  style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">
+      <div class="player p1 turn-container">
+        Player 1
+        <div class="connected">Connection <span></span></div>
+        <div class="ready">Ready <span></span></div>
+      </div>
+      <div class="player p2 turn-container">
+        Player 2
+        <div class="connected">Connection <span></span></div>
+        <div class="ready">Ready <span></span></div>
+      </div>
+      <div>
+        <p id="turn-container">Turn:</p>
+      </div>
     </div>
 
     <div id="svg-container" style="position:relative;z-index: 1;">
-      <div>
-        <p id="turn-container" style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">Turn:</p>
-      </div>
+      
       <div id="restart-game"></div>
       <div class="score-container">
         <p style="text-align: center; font-size: 30px; font-family: 'Sixtyfour', sans-serif; display: inline-block;">Score:</p>
@@ -53,9 +51,6 @@
         <p id="print-computer-boats" style="font-family: 'Lobster', sans-serif;">No. of boats Enemy destroyed: </p>
         
       </div>
-
-      
-    
   
       <div class="gameboard" style="display: inline-block;">
         <p style="font-size: xxx-large  " id="playerName">Your grid</p>

@@ -12,9 +12,6 @@ const boat_three = new Boat("boat_three", 3);
 const boat_four = new Boat("boat_four", 4);
 const boat_five = new Boat("boat_five", 5);
 
-// document.getElementById("loading").style.display = "none";
-// document.getElementById("svg-container").style.display = "none";
-
 const boat = [boat_one, boat_two, boat_three, boat_four, boat_five];
 
 function battleShipGame() {
@@ -40,20 +37,23 @@ function battleShipGame() {
       cnt += 1;
     }
   }
-  const canvas = document.getElementById("player"); //Player Grid
-  const canvas1 = document.getElementById("computer"); //Computer Grid
+  const containerA = document.getElementById("player"); //Player Grid
+  const containerB = document.getElementById("computer"); //Computer Grid
   const startGame = document.getElementById("Start-game"); //Start button
-  const ctx = canvas.getContext("2d"); //Handles all the boxes inside the Player's grid
-  const ctx1 = canvas1.getContext("2d"); //Handles all the boxes inside the Computer's grid
+  const playerA_grid = containerA.getContext("2d"); //Handles all the boxes inside the Player's grid
+  const playerB_grid = containerB.getContext("2d"); //Handles all the boxes inside the Computer's grid
   const allAvailableBoatsGrid = document.querySelector(".boats-container");
   const gridSize = 10;
-  const cellSize = canvas.width / gridSize;
-  const cellSize1 = canvas1.width / gridSize;
+  const cellSize = containerA.width / gridSize;
+  const cellSize1 = containerB.width / gridSize;
   let shipsPlayer = []; // Ship placement position for Player (Player chooses)
   let hits = []; //Handles the hits
   let playerShipIDUsed = []; //Keeps track of which ships the player has placed in the grid
   let shipsHitByComputer = []; //Contains name of the ships that have been hit by the computer
   const infoDisplay = document.querySelector("#info");
+  const connection_turn_container = document.querySelector(
+    "#connection-turn-container"
+  );
   let droppedSequence = [];
   let cntComputer = 0;
   let currentPlayer = "user";
@@ -74,7 +74,6 @@ function battleShipGame() {
       playerNumber = parseInt(number);
       if (playerNumber === 1) currentPlayer = "enemy";
 
-      console.log(playerNumber);
       socket.emit("check-players");
     }
   });
@@ -137,19 +136,18 @@ function battleShipGame() {
     if (allShipsPlaced) startPlaying(socket);
     else infoDisplay.innerHTML = "Please place ships first";
     findIndexDroppedSeq();
-    console.log(shipsPlayer);
   });
 
   let ff = 0;
 
-  canvas1.addEventListener("click", (event) => {
+  containerB.addEventListener("click", (event) => {
     if (
       currentPlayer == "user" &&
       isReady &&
       isEnemyReady &&
       Turn.innerHTML === "Turn: Your turn"
     ) {
-      const rect = canvas1.getBoundingClientRect();
+      const rect = containerB.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       const gridX = Math.floor(x / cellSize);
@@ -165,7 +163,7 @@ function battleShipGame() {
       isEnemyReady &&
       Turn.innerHTML === "Turn: Your turn"
     ) {
-      const rect = canvas1.getBoundingClientRect();
+      const rect = containerB.getBoundingClientRect();
       const x = event.clientX - rect.left;
       const y = event.clientY - rect.top;
       const gridX = Math.floor(x / cellSize);
@@ -181,7 +179,6 @@ function battleShipGame() {
   socket.on("fire", (event) => {
     f = 1;
     Turn.innerHTML = "Turn: Your turn";
-    console.log(event.shipss);
     let val;
     const gridX = event.shotFired.gridX;
     const gridY = event.shotFired.gridY;
@@ -189,12 +186,22 @@ function battleShipGame() {
     if (findsIndex(hits, [gridX, gridY]) == -1) {
       hits.push([gridX, gridY]);
       if (checkArray(shipsPlayer, [gridX, gridY]) == -1) {
-        ctx.fillStyle = "blue";
-        ctx.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
+        playerA_grid.fillStyle = "blue";
+        playerA_grid.fillRect(
+          gridX * cellSize,
+          gridY * cellSize,
+          cellSize,
+          cellSize
+        );
         socket.emit("reply-fire", { msg: "miss", gridX: gridX, gridY: gridY });
       } else if (checkArray(shipsPlayer, [gridX, gridY]) == 0) {
-        ctx.fillStyle = "red";
-        ctx.fillRect(gridX * cellSize, gridY * cellSize, cellSize, cellSize);
+        playerA_grid.fillStyle = "red";
+        playerA_grid.fillRect(
+          gridX * cellSize,
+          gridY * cellSize,
+          cellSize,
+          cellSize
+        );
         socket.emit("reply-fire", { msg: "hit", gridX: gridX, gridY: gridY });
 
         const indShipPlayer = findsIndex(shipsPlayer, [gridX, gridY]);
@@ -203,7 +210,6 @@ function battleShipGame() {
         const countShipHit = checkShipHitOccurence(shipsHitByComputer, val);
         if (countShipHit == val + 1) {
           cntComputer++;
-          console.log("I'm in");
           var img = new Image();
           var div1 = document.getElementById("print-computer-boats");
 
@@ -220,7 +226,11 @@ function battleShipGame() {
 
           img.src = "./battleship.svg";
           if (cntComputer == 5) {
-            alert("You Lost!!!!");
+            connection_turn_container.innerHTML = "You Lost!!";
+            Turn.innerHTML = "";
+            setTimeout(function () {
+              window.location.reload();
+            }, 10000);
             socket.emit("full-boat-destroyed", { msg: "finished" });
           } else {
             socket.emit("full-boat-destroyed", { msg: "destroyed" });
@@ -265,25 +275,31 @@ function battleShipGame() {
       };
 
       img.src = "./battleship.svg";
-      alert("You Won!!!");
+      connection_turn_container.innerHTML = "You Won!!";
+      Turn.innerHTML = "";
+      setTimeout(function () {
+        window.location.reload();
+      }, 10000);
     }
   });
 
   socket.on("reply-fire", (m) => {
     if (m.msg == "hit") {
-      // shipsHitByPlayer.push([m.gridX, m.gridY]);
-      ctx1.fillStyle = "black";
-      ctx1.fillRect(m.gridX * cellSize, m.gridY * cellSize, cellSize, cellSize);
-
-      // if (shipsHitByPlayer.length == 15) {
-      //   if (confirm("You won!")) {
-      //     location.reload();
-      //   }
-      //   socket.emit("game-over");
-      // }
+      playerB_grid.fillStyle = "red";
+      playerB_grid.fillRect(
+        m.gridX * cellSize,
+        m.gridY * cellSize,
+        cellSize,
+        cellSize
+      );
     } else if (m.msg == "miss") {
-      ctx1.fillStyle = "red";
-      ctx1.fillRect(m.gridX * cellSize, m.gridY * cellSize, cellSize, cellSize);
+      playerB_grid.fillStyle = "blue";
+      playerB_grid.fillRect(
+        m.gridX * cellSize,
+        m.gridY * cellSize,
+        cellSize,
+        cellSize
+      );
     } else {
       alert("Spot already bombed, please bomb another spot");
     }
@@ -327,20 +343,25 @@ function battleShipGame() {
 
   function drawBoard() {
     //Draws Player board
-    ctx.clearRect(100, 10, canvas.width, canvas.height);
+    playerA_grid.clearRect(100, 10, containerA.width, containerA.height);
     for (let i = 0; i < gridSize; i++) {
       for (let j = 0; j < gridSize; j++) {
-        ctx.strokeRect(i * cellSize, j * cellSize, cellSize, cellSize);
+        playerA_grid.strokeRect(i * cellSize, j * cellSize, cellSize, cellSize);
       }
     }
   }
 
   function drawBoard1() {
     //Draws Computer board
-    ctx1.clearRect(120, 120, canvas1.width, canvas1.height);
+    playerB_grid.clearRect(120, 120, containerB.width, containerB.height);
     for (let i = 0; i < gridSize; i++) {
       for (let j = 0; j < gridSize; j++) {
-        ctx1.strokeRect(i * cellSize1, j * cellSize1, cellSize1, cellSize1);
+        playerB_grid.strokeRect(
+          i * cellSize1,
+          j * cellSize1,
+          cellSize1,
+          cellSize1
+        );
       }
     }
   }
@@ -350,8 +371,8 @@ function battleShipGame() {
     if (checkArray(shipsPlayer, [x, y]) == -1) {
       shipsPlayer.push([x, y]);
       playerShipIDUsed.push("one");
-      ctx.fillStyle = "#FED8B1";
-      ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+      playerA_grid.fillStyle = "#FED8B1";
+      playerA_grid.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
       return 0;
     } else {
       window.alert(
@@ -372,9 +393,14 @@ function battleShipGame() {
         shipsPlayer.push([x, y]);
         shipsPlayer.push([x, y + 1]);
         playerShipIDUsed.push("two");
-        ctx.fillStyle = "#007C80";
-        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-        ctx.fillRect(x * cellSize, (y + 1) * cellSize, cellSize, cellSize);
+        playerA_grid.fillStyle = "#007C80";
+        playerA_grid.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        playerA_grid.fillRect(
+          x * cellSize,
+          (y + 1) * cellSize,
+          cellSize,
+          cellSize
+        );
         return 0;
       } else {
         window.alert(
@@ -391,9 +417,14 @@ function battleShipGame() {
         shipsPlayer.push([x, y]);
         shipsPlayer.push([x + 1, y]);
         playerShipIDUsed.push("two");
-        ctx.fillStyle = "#007C80";
-        ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
-        ctx.fillRect((x + 1) * cellSize, y * cellSize, cellSize, cellSize);
+        playerA_grid.fillStyle = "#007C80";
+        playerA_grid.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+        playerA_grid.fillRect(
+          (x + 1) * cellSize,
+          y * cellSize,
+          cellSize,
+          cellSize
+        );
         return 0;
       } else {
         window.alert(
@@ -413,11 +444,16 @@ function battleShipGame() {
         checkArray(shipsPlayer, [x, y + 2]) == -1 &&
         y + 2 < 10
       ) {
-        ctx.fillStyle = "rgb(43, 226, 159)";
+        playerA_grid.fillStyle = "rgb(43, 226, 159)";
 
         for (let i = 0; i < 3; i++) {
           shipsPlayer.push([x, y + i]);
-          ctx.fillRect(x * cellSize, (y + i) * cellSize, cellSize, cellSize);
+          playerA_grid.fillRect(
+            x * cellSize,
+            (y + i) * cellSize,
+            cellSize,
+            cellSize
+          );
         }
         playerShipIDUsed.push("three");
         return 0;
@@ -434,11 +470,16 @@ function battleShipGame() {
         checkArray(shipsPlayer, [x + 2, y]) == -1 &&
         x + 2 < 10
       ) {
-        ctx.fillStyle = "rgb(43, 226, 159)";
+        playerA_grid.fillStyle = "rgb(43, 226, 159)";
 
         for (let i = 0; i < 3; i++) {
           shipsPlayer.push([x + i, y]);
-          ctx.fillRect((x + i) * cellSize, y * cellSize, cellSize, cellSize);
+          playerA_grid.fillRect(
+            (x + i) * cellSize,
+            y * cellSize,
+            cellSize,
+            cellSize
+          );
         }
         playerShipIDUsed.push("three");
         return 0;
@@ -461,11 +502,16 @@ function battleShipGame() {
         checkArray(shipsPlayer, [x, y + 3]) == -1 &&
         y + 3 < 10
       ) {
-        ctx.fillStyle = "rgb(226, 177, 43)";
+        playerA_grid.fillStyle = "rgb(226, 177, 43)";
 
         for (let i = 0; i < 4; i++) {
           shipsPlayer.push([x, y + i]);
-          ctx.fillRect(x * cellSize, (y + i) * cellSize, cellSize, cellSize);
+          playerA_grid.fillRect(
+            x * cellSize,
+            (y + i) * cellSize,
+            cellSize,
+            cellSize
+          );
         }
         playerShipIDUsed.push("four");
         return 0;
@@ -483,11 +529,16 @@ function battleShipGame() {
         checkArray(shipsPlayer, [x + 3, y]) == -1 &&
         x + 3 < 10
       ) {
-        ctx.fillStyle = "rgb(226, 177, 43)";
+        playerA_grid.fillStyle = "rgb(226, 177, 43)";
 
         for (let i = 0; i < 4; i++) {
           shipsPlayer.push([x + i, y]);
-          ctx.fillRect((x + i) * cellSize, y * cellSize, cellSize, cellSize);
+          playerA_grid.fillRect(
+            (x + i) * cellSize,
+            y * cellSize,
+            cellSize,
+            cellSize
+          );
         }
         playerShipIDUsed.push("four");
         return 0;
@@ -511,11 +562,16 @@ function battleShipGame() {
         checkArray(shipsPlayer, [x, y + 4]) == -1 &&
         y + 4 < 10
       ) {
-        ctx.fillStyle = "#808080";
+        playerA_grid.fillStyle = "#808080";
 
         for (let i = 0; i < 5; i++) {
           shipsPlayer.push([x, y + i]);
-          ctx.fillRect(x * cellSize, (y + i) * cellSize, cellSize, cellSize);
+          playerA_grid.fillRect(
+            x * cellSize,
+            (y + i) * cellSize,
+            cellSize,
+            cellSize
+          );
         }
         playerShipIDUsed.push("five");
         return 0;
@@ -534,11 +590,16 @@ function battleShipGame() {
         checkArray(shipsPlayer, [x + 4, y]) == -1 &&
         x + 4 < 10
       ) {
-        ctx.fillStyle = "#808080";
+        playerA_grid.fillStyle = "#808080";
 
         for (let i = 0; i < 5; i++) {
           shipsPlayer.push([x + i, y]);
-          ctx.fillRect((x + i) * cellSize, y * cellSize, cellSize, cellSize);
+          playerA_grid.fillRect(
+            (x + i) * cellSize,
+            y * cellSize,
+            cellSize,
+            cellSize
+          );
         }
         playerShipIDUsed.push("five");
         return 0;
@@ -551,90 +612,6 @@ function battleShipGame() {
     }
   }
 
-  function restartGame() {
-    //Restarts the game
-    document.head.innerHTML =
-      document.head.innerHTML + `<link rel="stylesheet" href="./styles.css">`;
-
-    // location.reload();
-    document.body.innerHTML = `
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Lobster&family=Sixtyfour&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Sixtyfour&display=swap" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css2?family=Honk&display=swap" rel="stylesheet">
-        <h1 style="display:flex; justify-content: center; font-family: 'Honk', system-ui; font-size: 80px;">Battleship</h1>
-        <div class="information-container">
-            <svg width="100" height="50" xmlns="http://www.w3.org/2000/svg">
-            <rect x="60" y="10" width="80" height="50" style="fill:red;" />
-            <span style="font-size: 30px; font-style:italic; font-weight:bold">-->Hit</span>
-            </svg>
-            <svg width="100" height="50" xmlns="http://www.w3.org/2000/svg">
-            <rect x="60" y="10" width="80" height="50" style="fill:blue;" />
-            <span style="font-size: 30px; font-style:italic; font-weight:bold">-->Miss</span>
-            </svg>
-            
-        </div>
-        <title>Battleship Game</title>
-        <link rel="stylesheet" href="./styles.css">
-        <video width="320" height="240" autoplay style="opacity: 0.1;position: fixed;right: 0;bottom: 0;min-width: 100%; min-height: 100%;object-fit: fill; z-index: 0;" id="myVideo">
-            <source src="explosion_video.mp4" type="video/mp4">
-            Your browser does not support the audio element.
-        </video>
-        <div id="svg-container" style="position:relative;z-index: 1;">
-        <div id="turn-container">
-          <p style="text-align: center; font-size: 30px; font-family: 'Black Ops One', system-ui;; margin-bottom: 50px;">Turn:</p>
-        </div>
-        <div id="restart-game"></div>
-        <div class="score-container">
-          <p style="text-align: center; font-size: 30px; font-family: 'Sixtyfour', sans-serif; display: inline-block;">Score:</p>
-          <span style="float: right; font-size: 30px; font-style:italic; font-weight:bold; display: inline-block;"><a href="./battleship-how-to-play.html" target="_blank">How to play?</a></span>
-          <p id="print-player-boats" style="font-family: 'Lobster', sans-serif;">No. of boats Player destroyed: </p>
-          <p id="print-computer-boats" style="font-family: 'Lobster', sans-serif;">No. of boats Comp destroyed: </p>
-          
-        </div>
-      
-    
-        <div class="gameboard" style="display: inline-block;">
-          <p style="font-size: xxx-large  ">Player</p>
-          <canvas id="player" width="500" height="500" style="margin:50px; "></canvas>
-          
-        </div>
-    
-        <div class="gameboard" style="display: inline-block;">
-          <p style="font-size: xxx-large ">Computer</p>
-          <canvas id="computer" width="500" height="500" style="margin:50px;"></canvas>
-        </div>
-        <br>
-        
-        <br>
-    
-        <div style="justify-content: center;">
-          <button id="Start-game">Start Game</button> 
-        </div>
-    
-        <audio id="myAudio">
-          <source src="explosion_sound.mp3" type="audio/mpeg">
-          Your browser does not support the audio element.
-        </audio>
-        
-        <div class="boats-container">
-          <div id="one" class="boat-one one" style="cursor:pointer" draggable="true"></div>
-          <div id="two" class="boat-two two" style="cursor:pointer" draggable="true"></div>
-          <div id="three" class="boat-three three" style="cursor:pointer" draggable="true"></div>
-          <div id="four" class="boat-four four" style="cursor:pointer" draggable="true"></div>
-          <div id="five" class="boat-five five" style="cursor:pointer" draggable="true"></div>
-        </div>
-    
-        <button id="button-flip" onclick="rotateShips();">Flip boats</button>
-     
-      </div>`;
-
-    battleShipGame();
-  }
-
   let shipDragged;
   const boatsPlayed = Array.from(
     document.getElementsByClassName("boats-container")
@@ -645,8 +622,8 @@ function battleShipGame() {
 
   const playerCanvas = document.querySelectorAll("#player");
 
-  canvas.addEventListener("dragover", dragging);
-  canvas.addEventListener("drop", draggingStop);
+  containerA.addEventListener("dragover", dragging);
+  containerA.addEventListener("drop", draggingStop);
 
   function draggingStart(e) {
     //This function is called when the ship starts dragging
@@ -656,7 +633,7 @@ function battleShipGame() {
   function dragging(e) {
     //This function is called when the ship is being dragged
     e.preventDefault();
-    const rect = canvas.getBoundingClientRect();
+    const rect = containerA.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
@@ -669,7 +646,7 @@ function battleShipGame() {
 
   function draggingStop(e) {
     //This function is called when the ship dragginng stops, so that we can know the location of where the ship is to be placed
-    const rect = canvas.getBoundingClientRect();
+    const rect = containerA.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     const gridX = Math.floor(x / cellSize);
@@ -733,7 +710,6 @@ function battleShipGame() {
 
     if (!allAvailableBoatsGrid.querySelector(".ship")) {
       allShipsPlaced = true;
-      console.log(shipsPlayer);
     }
 
     // socket.emit("playing", { value });
@@ -763,6 +739,8 @@ function battleShipGame() {
         Turn.innerHTML = "Turn: Your turn";
       }
     }
+
+    document.getElementById("Start-game").style.display = "none";
   }
 
   function isPlayerReady(number) {
